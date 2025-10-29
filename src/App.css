@@ -4,6 +4,7 @@ body {
   font-family: "Poppins", sans-serif;
   background: linear-gradient(135deg, #74ebd5, #acb6e5);
   transition: background 0.5s ease;
+  
 }
 
 .app.dark {
