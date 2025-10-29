@@ -9,31 +9,30 @@ const HourlyForecast = ({ hourly, unit }) => {
 
   const convertTemp = (tempC) => (unit === "C" ? tempC : (tempC * 9) / 5 + 32);
 
-  const getIcon = (code, temp, unit) => {
-    const tempC = unit === "F" ? ((temp - 32) * 5) / 9 : temp;
-    if (code >= 71 && code <= 86 && tempC > 8) return "RAIN";
-    if (tempC <= 3) return "SNOW";
-    if (code === 0) return "CLEAR_DAY";
-    if (code >= 1 && code <= 3) return "PARTLY_CLOUDY_DAY";
-    if (code >= 45 && code <= 48) return "FOG";
-    if (code >= 51 && code <= 67) return tempC < 10 ? "SLEET" : "RAIN";
-    if (code >= 71 && code <= 86) return "SNOW";
-    if (code >= 95 && code <= 99) return "THUNDER_SHOWERS";
-    return "CLOUDY";
-  };
+ const getIcon = (code, tempC) => {
+  // Do NOT re-convert temp based on unit — always use Celsius from API
+  if (code >= 71 && code <= 86 && tempC > 8) return "RAIN";
+  if (tempC <= 3) return "SNOW";
+  if (code === 0) return "CLEAR_DAY";
+  if (code >= 1 && code <= 3) return "PARTLY_CLOUDY_DAY";
+  if (code >= 45 && code <= 48) return "FOG";
+  if (code >= 51 && code <= 67) return tempC < 10 ? "SLEET" : "RAIN";
+  if (code >= 71 && code <= 86) return "SNOW";
+  if (code >= 95 && code <= 99) return "THUNDER_SHOWERS";
+  return "CLOUDY";
+};
 
-  const getDescription = (code, temp, unit) => {
-    const tempC = unit === "F" ? ((temp - 32) * 5) / 9 : temp;
-    if (code >= 71 && code <= 86 && tempC > 8) return "Rainy (Warm)";
-    if (code === 0) return tempC > 30 ? "Hot & Clear" : "Clear Sky";
-    if (code >= 1 && code <= 3)
-      return tempC > 28 ? "Warm & Partly Cloudy" : "Partly Cloudy";
+
+   const getDescription = (code) => {
+    if (code === 0) return "Clear Sky";
+    if (code >= 1 && code <= 3) return "Partly Cloudy";
     if (code >= 45 && code <= 48) return "Foggy / Low Visibility";
-    if (code >= 51 && code <= 67) return tempC < 10 ? "Cold Rain" : "Light Rain";
+    if (code >= 51 && code <= 67) return "Light Rain / Drizzle";
     if (code >= 71 && code <= 86) return "Snowy / Freezing";
     if (code >= 95 && code <= 99) return "Thunderstorms / Heavy Rain";
     return "Cloudy";
   };
+
 
   // 🌤 Determine time of day icon
   const getTimeOfDayIcon = (hour) => {
@@ -57,8 +56,10 @@ const HourlyForecast = ({ hourly, unit }) => {
         {hourly.time.slice(0, 24).map((time, i) => {
           const temp = hourly.temperature[i];
           const code = hourly.code[i];
-          const icon = getIcon(code, temp, unit);
-          const desc = getDescription(code, temp, unit);
+          const icon = getIcon(code, temp); // pass temp in Celsius only
+
+          const desc = getDescription(code);
+
           const date = new Date(time);
           const hour = date.getHours();
           const displayHour = date.toLocaleTimeString("en-US", {
